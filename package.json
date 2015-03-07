@@ -1,0 +1,15 @@
+{
+  "name": "cad",
+  "version": "0.0.0",
+  "description": "",
+  "main": "cad.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "prompt": "^0.2.14",
+    "optimist": "^0.6.1"
+  }
+}
