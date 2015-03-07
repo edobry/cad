@@ -58,14 +58,15 @@ var createSpace = function(dimensions, val) {
 };
 
 var printSpace = function(space) {
-	var print = function(point) {
-		console.log(point.get());
+	var print = function(x) { console.log(x); };
+	var printRow = function(row) {
+		return row.join(' ');
 	};
-	traverseDo(space, print);
+	space.map(printRow).forEach(print);
 };
 
-var generateSpace = function(width, height) {
-	return createSpace([width, height], 0);
+var generateSpace = function(height, width) {
+	return createSpace([height, width], 0);
 };
 
 //override with cli options
@@ -76,8 +77,7 @@ prompt.message = prompt.delimiter = "";
 
 prompt.start();
 
-prompt.get(["width", "height"], function (err, result) {
-	var space = generateSpace(parseInt(result.width), parseInt(result.height));
-	console.log(space);
+prompt.get(["height", "width"], function (err, result) {
+	var space = generateSpace(parseInt(result.height), parseInt(result.width));
 	printSpace(space);
 });
