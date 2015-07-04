@@ -1,0 +1,50 @@
+<html>
+    <head>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+
+            #grid {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="grid"></canvas>
+        <script>
+            ctx = document.getElementById("grid").getContext("2d");
+
+            var width = ctx.canvas.width = window.innerWidth;
+            var height = ctx.canvas.height = window.innerHeight;
+
+            setColor = function (color) { ctx.fillStyle = color; };
+            reset = function () { setColor("black"); ctx.fillRect(0, 0, width, height); };
+            drawPoint = function (p, color) { setColor(color || "white"); ctx.fillRect(p.x,p.y,1,1); };
+            p = function (x,y) { return {x:x, y:y}; };
+            rgb = function (r,g,b) { return "rgb(" + [r,g,b].join(',') + ')' };
+            random = function (min, max) { return min + Math.floor(Math.random()*(max-min)); };
+            randomColor = function () { return rgb(random(0, 255), random(0, 255), random(0, 255)); };
+            times = function (n, f, instant) {
+                if(n <= 0)
+                    return;
+
+                f();
+                if(instant) {
+                    for(var i = 0; i < n; i++)
+                        f();
+                }
+                else
+                    window.setTimeout(times, 0, --n, f);
+            };
+            contains = function (arr, x) { return arr.indexOf(x) != -1; };
+            exportFuncs = function () { return keys(window).filter(function(x) { return !contains(["top", "location", "document", "window", "external", "chrome", "context", "ctx", "i"], x); }).map(function(x) { return "" + x + " = " + window[x].toString() + ';'; }).join("\n"); };
+            test = function () { return "test";};
+            randomPoint = function() { return p(random(0, ctx.canvas.width), random(0, ctx.canvas.height)); };
+
+            reset();
+        </script>    
+    </body>
+</html>
