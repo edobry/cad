@@ -59,6 +59,7 @@ var Space = function(dimensions, val) {
 	this.toString = toString.bind(this);
 	this.visit = visit.bind(this);
 	this.traverseDo = traverseDo.bind(this);
+	this.dimensions = dimensions;
 	
 	this.traverseDo(set(val), dimensions);
 };

@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "prompt": "^0.2.14",
-    "optimist": "^0.6.1"
+    "optimist": "^0.6.1",
+    "keypress": "^0.2.1"
   }
 }
