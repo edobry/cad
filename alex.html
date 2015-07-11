@@ -40,7 +40,7 @@
                     window.setTimeout(times, 0, --n, f);
             };
             contains = function (arr, x) { return arr.indexOf(x) != -1; };
-            exportFuncs = function () { return keys(window).filter(function(x) { return !contains(["top", "location", "document", "window", "external", "chrome", "context", "ctx", "i"], x); }).map(function(x) { return "" + x + " = " + window[x].toString() + ';'; }).join("\n"); };
+            exportFuncs = function () { return Object.keys(window).filter(function(x) { return !contains(["top", "location", "document", "window", "external", "chrome", "context", "ctx", "i"], x); }).map(function(x) { return "" + x + " = " + window[x].toString() + ';'; }).join("\n"); };
             test = function () { return "test";};
             randomPoint = function() { return p(random(0, ctx.canvas.width), random(0, ctx.canvas.height)); };
 
