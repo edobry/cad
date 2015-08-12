@@ -68,6 +68,10 @@
         <script>
             var $intiial = $("#initial");
             $("#controls").change(function() {
+                var id = window.setTimeout(function() {}, 0);
+
+                while (id--) window.clearTimeout(id);
+
                 var initialState = $intiial.find("input:checked").val() == 1
                     ? genBaseState
                     : randomState;
