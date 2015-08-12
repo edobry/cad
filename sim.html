@@ -66,11 +66,15 @@
 
         <script src="sim.js" type="text/javascript"></script>
         <script>
-            var $intiial = $("#initial");
-            $("#controls").change(function() {
+            var cancelRender = function() {
                 var id = window.setTimeout(function() {}, 0);
 
                 while (id--) window.clearTimeout(id);
+            };
+
+            var $intiial = $("#initial");
+            $("#controls").change(function() {
+                cancelRender();
 
                 var initialState = $intiial.find("input:checked").val() == 1
                     ? genBaseState
@@ -81,7 +85,7 @@
                 reset();
                 simulate(initialState(), evolver(rule(ruleNum)));
             }).change();
-            $("#clear").click(reset);
+            $("#clear").click(function(){cancelRender();reset();});
         </script>    
     </body>
 </html>
