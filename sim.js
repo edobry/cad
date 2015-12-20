@@ -1,12 +1,30 @@
 ctx = $("#grid")[0].getContext("2d");
 
-var width = ctx.canvas.width = window.innerWidth;
-var height = ctx.canvas.height = window.innerHeight;
+var width = ctx.canvas.width;
+var height = ctx.canvas.height;
 
-setColor = function (color) { ctx.fillStyle = color; };
+setColor = function (color) { ctx.fillStyle = color; ctx.strokeStyle = color; };
 reset = function () { setColor("black"); ctx.fillRect(0, 0, width, height); };
 drawPoint = function (p, color) { setColor(color || "white"); ctx.fillRect(p.x,p.y,1,1); };
-p = function (x,y) { return {x:x, y:y}; };
+drawLine = (start, end, color) =>  {
+    setColor(color || "white");
+    ctx.beginPath();
+    ctx.moveTo(start.x, start.y);
+    ctx.lineTo(end.x, end.y);
+    ctx.closePath();
+    ctx.stroke();
+};
+
+fillHorizontal = y => drawLine(p(0, y), p(width, y));
+fillVertical = x => drawLine(p(x, 0), p(x, height));
+
+fillVerticalFromCenter = (x, size) => {
+    var center = height / 2;
+    var radius = size / 2;
+    drawLine(p(x, center - radius), p(x, center + radius));
+};
+
+p = (x,y) => ({ x, y });
 rgb = function (r,g,b) { return "rgb(" + [r,g,b].join(',') + ')' };
 random = function (min, max) { return min + Math.floor(Math.random()*(max-min)); };
 randomColor = function () { return rgb(random(0, 255), random(0, 255), random(0, 255)); };
@@ -26,19 +44,70 @@ contains = function (arr, x) { return arr.indexOf(x) != -1; };
 exportFuncs = function () { return Object.keys(window).filter(function(x) { return !contains(["top", "location", "document", "window", "external", "chrome", "context", "ctx", "i"], x); }).map(function(x) { return "" + x + " = " + window[x].toString() + ';'; }).join("\n"); };
 randomPoint = function () { return p(random(0, ctx.canvas.width), random(0, ctx.canvas.height)); };
 randomState = function () {
-var state = [];
-for(var x = 0; x < ctx.canvas.width; x++) {
-    state[x] = Math.round(Math.random());
-}
-return state;
+    var state = [];
+
+    for(var x = 0; x < ctx.canvas.width; x++) {
+        state[x] = Math.round(Math.random());
+    }
+
+    return state;
 };
-drawState = function (state, row) {
+
+isAlive = cell => cell && cell > 0;
+
+drawRow = function (row, state) {
+    // state.filter(isAlive)
+    //      .forEach((point, i) => drawPoint(p(i, row)));
+
     for(var i = 0; i < state.length; i++) {
-        if(state[i] && state[i] > 0) drawPoint(p(i, row));
+        if(isAlive(state[i])) drawPoint(p(i, row));
     }
 };
-fillWithRandomState = function () { for(var y = 0; y < ctx.canvas.height; y++) drawState(randomState(), y) };
-simulate = function (initial, next) { var current = initial, y = 0; times(ctx.canvas.height, function() { drawState((current = next(current)), y++) }) };
+
+drawState = state => {
+    reset();
+    state.forEach((cell, i) => {
+        if(isAlive(cell))
+            fillVerticalFromCenter(i, 5);
+    });
+};
+
+fillWithRandomState = function () { for(var y = 0; y < ctx.canvas.height; y++) drawRow(y, randomState()) };
+
+indexStream = () => Rx.Observable.from(function*() {
+    var i = 0;
+    while(true)
+        yield i++;
+}());
+// indexStream = () => Rx.Observable.generate(
+//     0,
+//     x => true,
+//     x => x + 1,
+//     x => x
+// );
+// indexStream = () => Rx.Observable(function*() {
+//     var i = 0;
+//     while(true)
+//         yield i++;
+// });
+
+simulate = function (states, showHistory, steps, speed) {
+    var views = {
+        topdown: states => {
+            states.take(steps).zip(Rx.Observable.interval(10 * speed)).subscribe(state => drawRow(state[1], state[0]));
+        },
+        present: states => {
+            // reset();
+            states.take(steps).zip(Rx.Observable.interval(50 * speed)).subscribe(state => drawState(state[0]));
+        }
+    };
+
+    reset();
+    return views[showHistory
+        ? "topdown"
+        : "present"
+    ](states/*.zip(indexStream())*/);
+};
 range = function (a, b) {
     var out = [];
     for(var i = a; i <= b; i++) out.push(i);
@@ -77,4 +146,11 @@ genBaseState = function () { return range(0, ctx.canvas.width-1).map(function(x)
 evolveState = function (state, rule) {
     return genTriplets(state).map(rule);
 };
-evolver = function (rule) { return function(prev) { return evolveState(prev, rule) }; };
+evolver = (initial, rule) => {
+    var current = initial;
+    return Rx.Observable.from(function*() {
+        while(true)
+            yield current = evolveState(current, rule);
+    }());
+};
+// evolver = function(rule) { return function(prev) { return evolveState(prev, rule) }; };

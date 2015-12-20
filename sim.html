@@ -1,51 +1,13 @@
 <html>
     <head>
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: inherit;
-            }
-            html {
-                font-family: courier;
-                box-sizing: border-box;
-            }
-
-            #initial {
-                margin-bottom: 10px;
-            }
-
-            #grid {
-                width: 100%;
-                height: 100%;
-            }
-            #controls {
-                position: absolute;
-                top: 20px;
-                left: 20px;
-                background-color: rgba(93, 93, 93, 0.82);
-                padding: 20px;
-                color: #CA4141;
-            }
-            #rule {
-                width: 45px;
-                background-color: #DCDCDC;
-                border: none;
-                padding: 5px;
-                box-sizing: border-box;
-            }
-            #clear {
-                background-color: #C74040;
-                border: none;
-                padding: 5px 9px 9px 9px;
-                font-size: 17px;
-                font-variant: small-caps;
-                margin-top: 10px;
-                color: #DCDCDC;
-                outline: none;
-            }
-        </style>
+        <link rel="stylesheet" href="styles.css" type="text/css"></style>
         <script src="bower_components/zepto/zepto.min.js" type="text/javascript"></script>
+        <!-- <script src="bower_components/q/q.js" type="text/javascript"></script> -->
+        <script src="bower_components/rxjs/dist/rx.all.js" type="text/javascript"></script>
+        <!-- <script src="bower_components/highland/dist/highland.js" type="text/javascript"></script> -->
+        <script type="text/javascript">
+            //window._ = highland;
+        </script>
     </head>
     <body>
         <div id="controls">
@@ -53,12 +15,27 @@
                 <h3>initial state</h3>
 
                 <input id="initRand" type="radio" name="initial" value="0"> <label for="initRand">random</label>
-                
+
                 <input id="initCenter" type="radio" name="initial" value="1" checked="checked"> <label for="initCenter">center</label>
             </div>
             <div>
                 <label for="rule">Wolfram rule: </label>
                 <input id="rule" type="number" value="30" min="0" max="255">
+            </div>
+            <div id="history">
+                <h3>history</h3>
+
+                <input id="initOn" type="radio" name="history" value="1" checked="checked"> <label for="initOn">on</label>
+
+                <input id="initOff" type="radio" name="history" value="0"> <label for="initOff">off</label>
+            </div>
+            <div>
+                <label for="steps">Steps: </label>
+                <input id="steps" type="number" value="0">
+            </div>
+            <div>
+                <label for="speed">Speed: </label>
+                <input id="speed" type="number" value="100">%
             </div>
             <input type="button" id="clear" value="reset">
         </div>
@@ -72,20 +49,32 @@
                 while (id--) window.clearTimeout(id);
             };
 
-            var $intiial = $("#initial");
+            ctx = $("#grid")[0].getContext("2d");
+
+            var width = ctx.canvas.width = window.innerWidth;
+            var height = ctx.canvas.height = window.innerHeight;
+
+            $("#steps").val(height);
+
+            var $initial = $("#initial");
             $("#controls").change(function() {
                 cancelRender();
 
-                var initialState = $intiial.find("input:checked").val() == 1
+                var initialState = ($initial.find("input:checked").val() == 1
                     ? genBaseState
-                    : randomState;
+                    : randomState)();
 
                 var ruleNum = parseInt($("#rule").val(), 10);
 
-                reset();
-                simulate(initialState(), evolver(rule(ruleNum)));
+                var showHistory = !!parseInt($("#history").find("input:checked").val(), 10);
+
+                var steps = parseInt($("#steps").val(), 10);
+
+                var speed = 100 / parseInt($("#speed").val(), 10);
+
+                simulate(evolver(initialState, rule(ruleNum)), showHistory, steps, speed);
             }).change();
             $("#clear").click(function(){cancelRender();reset();});
-        </script>    
+        </script>
     </body>
 </html>
