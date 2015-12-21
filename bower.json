@@ -16,6 +16,8 @@
   ],
   "dependencies": {
     "zepto": "~1.1.6",
-    "q": "~2.0.2"
+    "q": "~2.0.2",
+    "Percussion": "grisendo/Percussion",
+    "rxjs": "~4.0.7"
   }
 }

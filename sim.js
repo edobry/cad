@@ -93,20 +93,15 @@ indexStream = () => Rx.Observable.from(function*() {
 
 simulate = function (states, showHistory, steps, speed) {
     var views = {
-        topdown: states => {
-            states.take(steps).zip(Rx.Observable.interval(10 * speed)).subscribe(state => drawRow(state[1], state[0]));
-        },
-        present: states => {
-            // reset();
-            states.take(steps).zip(Rx.Observable.interval(50 * speed)).subscribe(state => drawState(state[0]));
-        }
+        topdown: states => (window.sim = states.take(steps).zip(Rx.Observable.interval(10 * speed))).subscribe(state => drawRow(state[1], state[0])),
+        present: states => (window.sim = states.take(steps).zip(Rx.Observable.interval(50 * speed))).subscribe(state => drawState(state[0]))
     };
 
     reset();
     return views[showHistory
         ? "topdown"
         : "present"
-    ](states/*.zip(indexStream())*/);
+    ](states);
 };
 range = function (a, b) {
     var out = [];
@@ -154,3 +149,12 @@ evolver = (initial, rule) => {
     }());
 };
 // evolver = function(rule) { return function(prev) { return evolveState(prev, rule) }; };
+debug = () => {
+    var perDiv = $("<div>").css({
+        width: "100%",
+        "background-color": "silver"
+    }).prependTo($("body"))[0];
+
+    window.per = new Percussion({ position: perDiv });
+    per.addStream(window.sim);
+};

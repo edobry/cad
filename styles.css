@@ -47,3 +47,7 @@ html {
     color: #DCDCDC;
     outline: none;
 }
+
+.hidden {
+    display: none;
+}
