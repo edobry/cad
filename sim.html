@@ -26,10 +26,10 @@
             <div id="mode">
                 <h3>Mode</h3>
 
-                <input id="modeHistory" type="radio" name="mode" value="history" checked="checked">
+                <input id="modeHistory" type="radio" name="mode" value="1" checked="checked">
                 <label for="modeHistory">history</label>
 
-                <input id="modeLive" type="radio" name="mode" value="live">
+                <input id="modeLive" type="radio" name="mode" value="0">
                 <label for="modeLive">live</label>
             </div>
             <div id="liveOpts" class="hidden">
@@ -44,6 +44,20 @@
                 <label for="speed">Speed: </label>
                 <input id="speed" type="number" value="100">%
             </div>
+            <div id="colors">
+                <h3>colors</h3>
+
+                <div>
+                    <label for="offColor">off</label>
+                    <input type="text" id="offColor" value="black">
+                </div>
+
+                <div>
+                    <label for="onColor">on</label>
+                    <input type="text" id="onColor" value="white">
+                </div>
+            </div>
+
             <input type="button" id="clear" value="reset">
         </div>
         <canvas id="grid"></canvas>
@@ -65,13 +79,17 @@
 
                 var ruleNum = parseInt($("#rule").val(), 10);
 
-                var showHistory = !!parseInt($("#history").find("input:checked").val(), 10);
+                var showHistory = !!parseInt($("#mode").find("input:checked").val(), 10);
 
                 var steps = parseInt($("#steps").val(), 10);
 
                 var speed = 100 / parseInt($("#speed").val(), 10);
 
-                simulate(evolver(initialState, rule(ruleNum)), showHistory, steps, speed);
+                //colors
+                var off = $("#offColor").val();
+                var on = $("#onColor").val();
+
+                simulate(evolver(initialState, rule(ruleNum)), showHistory, steps, speed, {off, on});
             };
 
             ctx = $("#grid")[0].getContext("2d");

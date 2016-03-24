@@ -3,8 +3,10 @@ ctx = $("#grid")[0].getContext("2d");
 var width = ctx.canvas.width;
 var height = ctx.canvas.height;
 
+var offColor;
+
 setColor = function (color) { ctx.fillStyle = color; ctx.strokeStyle = color; };
-reset = function () { setColor("black"); ctx.fillRect(0, 0, width, height); };
+reset = function () { setColor(offColor); ctx.fillRect(0, 0, width, height); };
 drawPoint = function (p, color) { setColor(color || "white"); ctx.fillRect(p.x,p.y,1,1); };
 drawLine = (start, end, color) =>  {
     setColor(color || "white");
@@ -55,12 +57,12 @@ randomState = function () {
 
 isAlive = cell => cell && cell > 0;
 
-drawRow = function (row, state) {
+drawRow = function (row, state, colors) {
     // state.filter(isAlive)
     //      .forEach((point, i) => drawPoint(p(i, row)));
 
     for(var i = 0; i < state.length; i++) {
-        if(isAlive(state[i])) drawPoint(p(i, row));
+        if(isAlive(state[i])) drawPoint(p(i, row), colors.on);
     }
 };
 
@@ -91,10 +93,13 @@ indexStream = () => Rx.Observable.from(function*() {
 //         yield i++;
 // });
 
-simulate = function (states, showHistory, steps, speed) {
+simulate = function (states, showHistory, steps, speed, colors) {
+    console.log(colors);
+    offColor = colors.off;
+
     var views = {
-        topdown: states => (window.sim = states.take(steps).zip(Rx.Observable.interval(10 * speed))).subscribe(state => drawRow(state[1], state[0])),
-        present: states => (window.sim = states.take(steps).zip(Rx.Observable.interval(50 * speed))).subscribe(state => drawState(state[0]))
+        topdown: states => (window.sim = states.take(steps).zip(Rx.Observable.interval(10 * speed))).subscribe(state => drawRow(state[1], state[0], colors)),
+        present: states => (window.sim = states.take(steps).zip(Rx.Observable.interval(50 * speed))).subscribe(state => drawState(state[0], colors))
     };
 
     reset();
